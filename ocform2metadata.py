@@ -24,9 +24,9 @@ if not os.path.exists(full_path):
     sys.exit(f"'File not found - {full_path}")
 
 # Read in each of the worksheets in the Form Definition spreadsheet
-df_settings = pd.read_excel(full_path, 'settings', keep_default_na=False, dtype=str)
-df_choices = pd.read_excel(full_path, 'choices', keep_default_na=False, dtype=str)
-df_survey = pd.read_excel(full_path, 'survey', keep_default_na=False, dtype=str)
+df_settings = pd.read_excel(full_path, 'settings', keep_default_na=False, dtype='str')
+df_choices = pd.read_excel(full_path, 'choices', keep_default_na=False, dtype='str')
+df_survey = pd.read_excel(full_path, 'survey', keep_default_na=False, dtype='str')
 
 header_row = ('Code', 'Type', 'Description', 'Length', 'Format')
 # Create empty datafram with column headings
@@ -82,7 +82,7 @@ for row in df_survey.itertuples():
         listname = str(row.type).split()[1]
         list_choices = df_choices[df_choices['list_name'] == listname]
         for choice in list_choices.itertuples():
-            if pd.isna(choice.label) : print(f"{choice}")
+            
             # Create the new row
             new_row = {
                 'Code': '',
