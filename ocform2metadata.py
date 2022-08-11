@@ -4,6 +4,8 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 
 from openpyxl.formatting import Rule
 from openpyxl.styles import Font, PatternFill, Alignment
+
+import re
 import os
 import sys
 import time
@@ -22,9 +24,9 @@ if not os.path.exists(full_path):
     sys.exit(f"'File not found - {full_path}")
 
 # Read in each of the worksheets in the Form Definition spreadsheet
-df_settings = df_choices = pd.read_excel(full_path, 'settings')
-df_choices = pd.read_excel(full_path, 'choices')
-df_survey = pd.read_excel(full_path, 'survey', keep_default_na=False)
+df_settings = pd.read_excel(full_path, 'settings', keep_default_na=False, dtype=str)
+df_choices = pd.read_excel(full_path, 'choices', keep_default_na=False, dtype=str)
+df_survey = pd.read_excel(full_path, 'survey', keep_default_na=False, dtype=str)
 
 header_row = ('Code', 'Type', 'Description', 'Length', 'Format')
 # Create empty datafram with column headings
@@ -67,7 +69,7 @@ for row in df_survey.itertuples():
         # Create the new row
         new_row = {
             'Code': '',
-            'Type': 'Repeat:',
+            'Type': 'Repeating:',
             'Description': repeat_group,
             'Length': '',
             'Format': ''
@@ -80,6 +82,7 @@ for row in df_survey.itertuples():
         listname = str(row.type).split()[1]
         list_choices = df_choices[df_choices['list_name'] == listname]
         for choice in list_choices.itertuples():
+            if pd.isna(choice.label) : print(f"{choice}")
             # Create the new row
             new_row = {
                 'Code': '',
@@ -150,7 +153,9 @@ for row in df_survey.itertuples():
 # https://openpyxl.readthedocs.io/en/stable/pandas.html#:~:text=Working%20with%20Pandas%20Dataframes%20%C2%B6%20The%20openpyxl.utils.dataframe.dataframe_to_rows%20%28%29,wb.active%20for%20r%20in%20dataframe_to_rows%28df%2C%20index%3DTrue%2C%20header%3DTrue%29%3A%20ws.append%28r%29
 wb = op.Workbook()
 ws = wb.active
-ws.title = form_title  # Worksheet title
+
+# Worksheet title
+ws.title = re.sub(r'\W+', ' ',form_title)
 
 # Read each row in the dataframe and add it to the worksheet
 for r in dataframe_to_rows(df_metadata, index=False, header=True):
@@ -170,7 +175,6 @@ for c in ws['A2:E2'][0]:
 for r in ws:
     quest_type = str(r[1].value)
     if quest_type.lower().endswith('group') or quest_type.lower().endswith('repeat'):
-        r[1].value = ''
         for c in r:
             c.fill = PatternFill('solid', fgColor='FFD800')
         continue
