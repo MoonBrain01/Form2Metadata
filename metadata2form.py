@@ -3,7 +3,7 @@ import pandas as pd
 import openpyxl as op
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, PatternFill
-from traitlets import default
+#from traitlets import default
 
 file_name = r'Metadata MINIMISE-Death 1.3 09 Aug 2022.xlsm'
 file_path = r'C:/Users/rehbgap/Python/Form2Metadata/'
