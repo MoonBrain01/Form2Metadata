@@ -2,22 +2,22 @@ from numpy import NaN
 import pandas as pd
 import openpyxl as op
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Font, PatternFill
+#from openpyxl.styles import Font, PatternFill
 import os
 
 import argparse
 
-def main(fp):
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("md_file", help="Name of metadata File ")
     args = parser.parse_args()
     full_path = args.md_file
-
+    
 
     df_metadata = pd.read_excel(io=full_path, header=0, keep_default_na=False, dtype='str')
 
     choices_cols = ['list_name','label','name','image']
-    survey_cols = ['type','name','label','appearance','required', 'relevant', 'constraint_message']
+    survey_cols = ['type','name','label','appearance','required', 'relevant']
 
     df_settings = pd.DataFrame({'form_title':[str(df_metadata['Description'][0])],'form_id':'','version':'','style':['pages theme-grid']},dtype='str')
     df_choices = pd.DataFrame(columns=choices_cols,dtype='str')
@@ -37,12 +37,7 @@ def main(fp):
         quest_length = ''
         quest_format = ''
 
-        if quest_type.startswith('warn if'):
-            quest_warn=quest_desc
-            quest_type=''
-            quest_desc=''
-
-        if quest_type.startswith('collect if'):
+        if quest_type.startswith('collect'):
             quest_collect=quest_desc
             quest_type=''
             quest_desc=''
@@ -67,7 +62,6 @@ def main(fp):
             ,f"{quest_length} {quest_format}" #Appearence
             ,'yes'# Required
             ,quest_collect # relevant
-            ,quest_warn #constraint message
         ]
 
     wb = op.Workbook()
@@ -96,5 +90,4 @@ def main(fp):
     wb.save(dest)
 
 if __name__ =='__main__':
-    full_path = r"G:\Documents\Python\Form2Metadata\test\Metadata MINIMISE-Death 1.3 09 Aug 2022.xlsm"
-    main(full_path)
+    main()

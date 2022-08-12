@@ -1,2 +1,5 @@
 \venv
 \test
+Activate.cmd
+\build
+\dist

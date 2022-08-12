@@ -8,8 +8,6 @@ from openpyxl.styles import Font, PatternFill, Alignment
 import re
 import os
 import sys
-import time
-
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -120,7 +118,7 @@ for row in df_survey.itertuples():
     if row.relevant != '':
         new_row = {
             'Code': '',
-            'Type': 'COLLECT-IF',
+            'Type': 'COLLECT IF',
             'Description': row.relevant,
             'Length': '',
             'Format': ''
@@ -131,7 +129,7 @@ for row in df_survey.itertuples():
     if row.constraint != '':
         new_row = {
             'Code': '',
-            'Type': 'WARN-IF:',
+            'Type': 'WARN IF:',
             'Description': row.constraint_message,
             'Length': '',
             'Format': ''
@@ -204,6 +202,5 @@ for r in ws:
 # Save the Excel object as an Excel file
 file_path = os.path.dirname(full_path)
 file_name = os.path.basename(full_path)
-ts = time.time()
 dest = f"{file_path}\MD-{file_name}.xlsx"
 wb.save(dest)
