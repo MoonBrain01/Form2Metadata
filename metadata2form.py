@@ -12,7 +12,6 @@ def main():
     parser.add_argument("md_file", help="Name of metadata File ")
     args = parser.parse_args()
     full_path = args.md_file
-    
 
     df_metadata = pd.read_excel(io=full_path, header=0, keep_default_na=False, dtype='str')
 
@@ -67,7 +66,7 @@ def main():
 
         if quest_type.startswith('collect'):
             quest_collect=quest_desc
-            quest_type=''
+            #quest_type=''
             quest_desc=''
 
         if quest_type =='category':
