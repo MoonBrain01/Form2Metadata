@@ -16,14 +16,27 @@ def main():
 
     df_metadata = pd.read_excel(io=full_path, header=0, keep_default_na=False, dtype='str')
 
-    choices_cols = ['list_name','label','name','image']
-    survey_cols = ['type','name','label','appearance','required', 'relevant']
+    choices_data = {
+        'list_name': ['yn','yn'],
+        'name' : ['1','0'],
+        'label' :['YES','NO'],
+        'image':['',''],
+        'order':['','']
+    }
 
-    df_settings = pd.DataFrame({'form_title':[str(df_metadata['Description'][0])],'form_id':'','version':'','style':['pages theme-grid']},dtype='str')
-    df_choices = pd.DataFrame(columns=choices_cols,dtype='str')
-    df_survey = pd.DataFrame(columns=survey_cols,dtype='str')
+    settings_data = {
+        'form_title':[str(df_metadata['Description'][0])],
+        'form_id':[''],
+        'version':[''],
+        'style':['pages theme-grid']
+    }
 
-    new_row = pd.DataFrame(columns=survey_cols,dtype='str')
+    survey_cols = ['type','name','label','appearance','required', 'relevant','calculate']
+
+    df_settings = pd.DataFrame.from_dict(settings_data, dtype='str')
+    df_choices = pd.DataFrame.from_dict(choices_data, dtype='str')
+    df_survey = pd.DataFrame(columns=survey_cols, dtype='str')
+
     for row in df_metadata.itertuples(index=False):
         #Skip row if blank
         if (pd.isna(row.Code) or row.Code=='' ) and (pd.isna(row.Type) or row.Type=='' ): 
@@ -33,7 +46,6 @@ def main():
         quest_type = str(row.Type).lower().strip()
         quest_desc = str(row.Description).strip()
         quest_collect = ''
-        quest_warn = ''
         quest_length = ''
         quest_format = ''
 
@@ -62,6 +74,7 @@ def main():
             ,f"{quest_length} {quest_format}" #Appearence
             ,'yes'# Required
             ,quest_collect # relevant
+            ,'' #Calculation
         ]
 
     wb = op.Workbook()
@@ -79,7 +92,6 @@ def main():
     wb.active=2
     for r in dataframe_to_rows(df_choices, index=False, header=True):
         ws3.append(r)
-
 
     # Save the file
     file_path = os.path.dirname(full_path)
