@@ -31,11 +31,13 @@ def main():
         'style':['pages theme-grid']
     }
 
-    survey_cols = ['type','name','label','appearance','required', 'relevant','calculate']
+    survey_cols = ['type','name','label','appearance','required', 'relevant','calculation']
 
     df_settings = pd.DataFrame.from_dict(settings_data, dtype='str')
     df_choices = pd.DataFrame.from_dict(choices_data, dtype='str')
     df_survey = pd.DataFrame(columns=survey_cols, dtype='str')
+
+    is_calculation = False
 
     for row in df_metadata.itertuples(index=False):
         #Skip row if blank
@@ -48,6 +50,20 @@ def main():
         quest_collect = ''
         quest_length = ''
         quest_format = ''
+        quest_calc = ''
+
+        if quest_type.startswith('calculat') and is_calculation == False:
+            calc_code = quest_code
+            calc_desc = quest_desc
+            is_calculation = True
+            continue
+
+        if is_calculation:
+            quest_type = 'calculate'
+            quest_code = calc_code
+            quest_calc = quest_desc
+            quest_desc = calc_desc
+            is_calculation = False
 
         if quest_type.startswith('collect'):
             quest_collect=quest_desc
@@ -74,7 +90,7 @@ def main():
             ,f"{quest_length} {quest_format}" #Appearence
             ,'yes'# Required
             ,quest_collect # relevant
-            ,'' #Calculation
+            ,quest_calc #Calculation
         ]
 
     wb = op.Workbook()
