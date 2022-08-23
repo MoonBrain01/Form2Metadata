@@ -1,2 +1,5 @@
 \venv
 \test
+\build
+\dist
+*.spec
