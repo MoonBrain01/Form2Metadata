@@ -23,29 +23,38 @@ def main(fp):
     df_choices = pd.DataFrame(columns=choices_cols,dtype='str')
     df_survey = pd.DataFrame(columns=survey_cols,dtype='str')
 
+    quest_count = 0
     new_row = pd.DataFrame(columns=survey_cols,dtype='str')
     for row in df_metadata.itertuples(index=False):
         #Skip row if blank
         if (pd.isna(row.Code) or row.Code=='' ) and (pd.isna(row.Type) or row.Type=='' ): 
             continue
 
+        quest_count +=1
         quest_code = str(row.Code).lower().strip()
         quest_type = str(row.Type).lower().strip()
         quest_desc = str(row.Description).strip()
+        if quest_code =='' and quest_type!='' and not quest_type.isnumeric() and quest_desc !='': 
+            quest_code = f"quest{quest_count:0>3}"
+        else:
+            continue
         quest_collect = ''
         quest_warn = ''
         quest_length = ''
         quest_format = ''
 
-        if quest_type.startswith('warn if'):
-            quest_warn=quest_desc
-            quest_type=''
-            quest_desc=''
+        #if quest_type.isnumeric():
+            #quest_type, quest_code = ('', quest_type)
 
-        if quest_type.startswith('collect if'):
-            quest_collect=quest_desc
-            quest_type=''
-            quest_desc=''
+        #if quest_type.startswith('warn if'):
+        #    quest_warn=quest_desc
+        #    quest_type=''
+        #    quest_desc=''
+
+        #if quest_type.startswith('collect if'):
+        #    quest_collect=quest_desc
+        #    quest_type=''
+        #    quest_desc=''
 
         if quest_type =='category':
             quest_type='select_one'
@@ -54,11 +63,11 @@ def main(fp):
             quest_type = ''
         if pd.isna(row.Code): 
             quest_code = ''
-        if pd.notna(row.Length) and row.Length!='': 
-            quest_length = 'Length:'+row.Length 
+        #if pd.notna(row.Length) and row.Length!='': 
+        #    quest_length = 'Length:'+row.Length 
             
-        if pd.notna(row.Format) and row.Format!='': 
-            quest_format = 'Format:'+row.Format 
+        #if pd.notna(row.Format) and row.Format!='': 
+        #    quest_format = 'Format:'+row.Format 
 
         df_survey.loc[len(df_survey.index)] = [
             quest_type  #Type
@@ -70,6 +79,7 @@ def main(fp):
             ,quest_warn #constraint message
         ]
 
+    # Create each of teh worksheets in the Excel spreadsheet
     wb = op.Workbook()
     ws1 = wb.active
     ws1.title='settings'
@@ -90,7 +100,7 @@ def main(fp):
     # Save the file
     file_path = os.path.dirname(full_path)
     file_name = os.path.basename(full_path)
-    dest = f"{file_path}\OC-{file_name}.xlsx"
+    dest = f"{file_path}\OC-{file_name}"
 
     wb.active=0
     wb.save(dest)
