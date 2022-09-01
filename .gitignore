@@ -5,3 +5,5 @@ Activate.cmd
 \dist
 *.xls*
 *.bat
+metadata2form - Shortcut.lnk
+metadata2form.spec

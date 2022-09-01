@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("metadata_file", help="Name of metadata file)")
 args = parser.parse_args()
 
-full_path = args.metadata_def
+full_path = args.metadata_file
 
 if not os.path.exists(full_path):
     sys.exit(f"'File not found - {full_path}")
@@ -21,7 +21,7 @@ df_metadata = pd.read_excel(full_path, keep_default_na=False, dtype='str')
 
 settings_header = ('form_title', 'form_id', 'version')
 choices_header = ('list_name', 'label', 'name')
-survey_header = ('type', 'name', 'label', 'bind:oc:itemgroup')
+survey_header = ('type', 'name', 'label', 'bind::oc:itemgroup', 'required')
 
 # Initialise dataframes
 df_choices = pd.DataFrame(columns=choices_header)
@@ -31,7 +31,7 @@ df_settings = pd.DataFrame(columns=settings_header)
 form_title = df_metadata[df_metadata['Type'].isin(
     ['Form:', 'Form'])]['Description'].to_string(index=False)
 df_settings = df_settings.append(
-    {'form_title': form_title, 'form_id': '', 'version': ''}, ignore_index=True)
+    {'form_title': form_title, 'form_id': '', 'version': '0'}, ignore_index=True)
 
 valid_types = ('note', 'integer', 'decimal', 'category', 'text')
 ques_count = 0
@@ -61,7 +61,7 @@ for row in df_metadata.itertuples():
 
     if ques_type == 'category':
         df_survey = df_survey.append({'type': f"select_one {ques_code}", 'name': ques_code,
-                                     'label': ques_label, 'bind:oc:itemgroup': 'main'}, ignore_index=True)
+                                     'label': ques_label, 'bind::oc:itemgroup': 'main', 'required': 'yes'}, ignore_index=True)
         is_select = True
         continue
 
@@ -88,6 +88,6 @@ del wb['Sheet']  # Delete blank worksheet
 
 # Save the dataframe as an Excel file
 file_path = os.path.dirname(full_path)
-file_name = os.path.basename(full_path)
-dest = f"{file_path}\OC-{file_name}"
+file_name = os.path.basename(full_path).split('.')[0]
+dest = f"{file_path}\OC-{file_name}.xlsx"
 wb.save(dest)
