@@ -45,7 +45,7 @@ for row in df_metadata.itertuples():
     if is_select:
         if ques_type.isnumeric():
             df_choices = df_choices.append(
-                dict(zip(choices_cols, (ques_code, ques_type, ques_label))), ignore_index=True)
+                dict(zip(choices_cols, (ques_code, ques_label, ques_type))), ignore_index=True)
             continue
         else:
             # If it is not a number, assume it is the end of the list options for the select question
