@@ -64,8 +64,13 @@ for row in df_metadata.itertuples():
         is_select = True
         continue
 
-    df_survey = df_survey.append(dict(zip(
-        survey_cols, (ques_type, ques_code, ques_label, 'main', 'yes'))), ignore_index=True)
+    if ques_type == 'note':
+        # Notes cannot have a value in the Required and ItemGroup column
+        df_survey = df_survey.append(dict(
+            zip(survey_cols, (ques_type, ques_code, ques_label, '', ''))), ignore_index=True)
+    else:
+        df_survey = df_survey.append(dict(zip(
+            survey_cols, (ques_type, ques_code, ques_label, 'main', 'yes'))), ignore_index=True)
 
 # Convert the Metadata dataframe into an Excel object
 # https://openpyxl.readthedocs.io/en/stable/pandas.html#:~:text=Working%20with%20Pandas%20Dataframes%20%C2%B6%20The%20openpyxl.utils.dataframe.dataframe_to_rows%20%28%29,wb.active%20for%20r%20in%20dataframe_to_rows%28df%2C%20index%3DTrue%2C%20header%3DTrue%29%3A%20ws.append%28r%29
