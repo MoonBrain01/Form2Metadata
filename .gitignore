@@ -3,3 +3,5 @@
 Activate.cmd
 \build
 \dist
+*.xls*
+*.bat
