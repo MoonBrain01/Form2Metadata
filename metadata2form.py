@@ -7,7 +7,8 @@ import sys
 import argparse
 
 # Get paramters passed via command line
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+    description='Convert CCTU metadata spreadsheet into a basic Open Clinica form definition file.')
 parser.add_argument("metadata_file", help="Name of metadata file)")
 args = parser.parse_args()
 
