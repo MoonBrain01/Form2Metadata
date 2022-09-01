@@ -79,14 +79,14 @@ def df_to_excel(wb, ws_title, df):
         ws.append(r)
 
 
-# Create a balnk
+# Create a workbook to hold form definition
 wb = op.Workbook()
 df_to_excel(wb, 'settings', df_settings)
 df_to_excel(wb, 'choices', df_choices)
 df_to_excel(wb, 'survey', df_survey)
 del wb['Sheet']  # Delete blank worksheet
 
-# Save the Excel object as an Excel file
+# Save the dataframe as an Excel file
 file_path = os.path.dirname(full_path)
 file_name = os.path.basename(full_path)
 dest = f"{file_path}\OC-{file_name}"
