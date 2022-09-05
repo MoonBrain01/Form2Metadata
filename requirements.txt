@@ -6,4 +6,4 @@ wheel
 pyinstaller
 argparse
 autopep8
-
+jinja2
