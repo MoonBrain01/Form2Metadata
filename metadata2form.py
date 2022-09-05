@@ -69,13 +69,13 @@ for row in df_metadata.itertuples():
         group_code_list.append([group_code, ques_label])
 
         df_survey = df_survey.append(
-            dict(zip(survey_cols, ("group start", group_code, ques_label, 'main', '', 'field-list'))), ignore_index=True)
+            dict(zip(survey_cols, ("begin group", group_code, ques_label, 'main', '', 'field-list'))), ignore_index=True)
         continue
 
     if re.search("^group\s*end$", ques_type):
         group_code, group_label = group_code_list.pop()
         df_survey = df_survey.append(
-            dict(zip(survey_cols, ("group end", group_code, group_label, 'main', '', ''))), ignore_index=True)
+            dict(zip(survey_cols, ("end group", group_code, group_label, 'main', '', ''))), ignore_index=True)
         continue
 
     ques_count += 1
