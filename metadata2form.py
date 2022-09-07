@@ -35,7 +35,7 @@ form_title = df_metadata[df_metadata['Type'].isin(
 #df_settings = df_settings.append({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
 #    'namespaces':'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'}, ignore_index=True)
 
-df_settings = df_settings.append({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
+df_settings = df_settings.concat({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
     'namespaces':'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'}, ignore_index=True)
 
 
@@ -62,9 +62,13 @@ for row in df_metadata.itertuples():
                 list_name = table_list_code
             else:
                 list_name = ques_code
+            # If the list for the first question in the table has been created, 
+            # do not create the others as they will be duplicates
+
             df_choices = df_choices.append(
                 {'list_name':list_name, 'label':ques_label, 'name':ques_type}, ignore_index=True)
             continue
+
         else:
             # If it is not a number, assume it is the end of the list options for the select question
             is_select = False
@@ -75,23 +79,27 @@ for row in df_metadata.itertuples():
 
     #Group/Table tags
     if re.search("^group\s*start$", ques_type) or re.search("^table\s*start$", ques_type):
-        group_count += 1
-        group_code = f"group_{group_count:03d}"
-        group_code_list.append([group_code, ques_label])
         if re.search("^table\s*start$", ques_type):
             is_table=True
             table_count += 1
             table_list_code = f"table_{table_count:03d}"
+            group_code = table_list_code
             group_appearance = 'table-list'
         else:
             group_appearance = 'field-list'
+            group_count += 1
+            group_code = f"group_{group_count:03d}"
+
+        group_code_list.append([group_code, ques_label])
 
         df_survey = df_survey.append(
-            {'type':"begin group", 'name':group_code, 'label':ques_label, 'bind::oc:itemgroup':'', 'required':'', 'apperance':group_appearance}, ignore_index=True)
+            {'type':"begin group", 'name':group_code, 'label':ques_label, 'bind::oc:itemgroup':'', 'required':'', 'appearance':group_appearance}, ignore_index=True)
         continue
 
     if re.search("^group\s*end$", ques_type) or re.search("^table\s*end$", ques_type):
         group_code, group_label = group_code_list.pop()
+
+        #If the end of the table, reset all the flags
         if re.search("^table\s*start$", ques_type):
             is_table=False
 
@@ -121,6 +129,9 @@ for row in df_metadata.itertuples():
     else:
         df_survey = df_survey.append(
             {'type':ques_type, 'name':ques_code, 'label':ques_label, 'bind::oc:itemgroup':'main', 'required':'yes', 'appearance':''}, ignore_index=True)
+
+# De-duplicate choices dataframe
+df_choices.drop_duplicates(inplace=True,ignore_index=False)
 
 # Convert the Metadata dataframe into an Excel object
 # https://openpyxl.readthedocs.io/en/stable/pandas.html#:~:text=Working%20with%20Pandas%20Dataframes%20%C2%B6%20The%20openpyxl.utils.dataframe.dataframe_to_rows%20%28%29,wb.active%20for%20r%20in%20dataframe_to_rows%28df%2C%20index%3DTrue%2C%20header%3DTrue%29%3A%20ws.append%28r%29
