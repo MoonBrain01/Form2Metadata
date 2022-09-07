@@ -38,7 +38,7 @@ df_settings = df_settings.append(
     dict(zip(settings_cols, (form_title, '', '0', 'theme-grid', 'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'))), ignore_index=True)
 
 valid_types = ('note', 'integer', 'decimal',
-               'category', 'text', 'date', 'group')
+               'category', 'text', 'date', 'group', 'table')
 ques_count = 0
 group_count = 0
 group_code_list = []
@@ -60,9 +60,10 @@ for row in df_metadata.itertuples():
             is_select = False
 
     # Skip row if it is not a valid question type
-    if not (ques_type in valid_types or ques_type.startswith('group')):
+    if not (ques_type in valid_types or ques_type.startswith('group') or ques_type.startswith('table')):
         continue
 
+    #Group tags
     if re.search("^group\s*start$", ques_type):
         group_count += 1
         group_code = f"group_{group_count:03d}"
@@ -78,12 +79,44 @@ for row in df_metadata.itertuples():
             dict(zip(survey_cols, ("end group", group_code, group_label, 'main', '', ''))), ignore_index=True)
         continue
 
+    #Table tags
+    if re.search("^table\s*start$", ques_type):
+        is_table = True
+        is_table_label = True
+        group_count += 1
+        group_code = f"group_{group_count:03d}"
+        group_code_list.append([group_code, ques_label])
+
+        df_survey = df_survey.append(
+            dict(zip(survey_cols, ("begin group", group_code, ques_label, 'main', '', 'field-list'))), ignore_index=True)
+        continue
+
+    if re.search("^table\s*end$", ques_type):
+        is_table = False
+        is_table_label = False
+        group_code, group_label = group_code_list.pop()
+        df_survey = df_survey.append(
+            dict(zip(survey_cols, ("end group", group_code, group_label, 'main', '', ''))), ignore_index=True)
+        continue
+
     ques_count += 1
     ques_code = f"ques_{ques_count:04d}"
 
     if ques_type == 'category':
+        if is_table:
+            if is_table_label:
+                ques_label=''
+                ques_group=''
+                ques_required = ''
+                ques_appearance = 'label'
+                is_table_label=False
+            else:
+                ques_group='main'
+                ques_required = 'yes'
+                ques_appearance = 'list-nolabel'
+
         df_survey = df_survey.append(
-            dict(zip(survey_cols, (f"select_one {ques_code}", ques_code, ques_label, 'main', 'yes', ''))), ignore_index=True)
+            dict(zip(survey_cols, (f"select_one {ques_code}", ques_code, ques_label, ques_group, ques_required, ques_appearance))), ignore_index=True)
         is_select = True
         continue
 
