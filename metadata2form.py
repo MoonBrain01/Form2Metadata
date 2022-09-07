@@ -43,9 +43,14 @@ valid_types = ('note', 'integer', 'decimal',
                'category', 'text', 'date', 'group', 'table')
 ques_count = 0
 
+#Each group is given a unique group ID - a sequential number prefixed with group_
 group_count = 0
-group_code_list = []
-is_select = False
+# As groups and contain subgroups, this list is used as a stack of group codes.
+group_code_list = [] 
+# Used to indicate when a category/select question has started. 
+# When True, the assumption is that the rows that follow are the choices for
+# the select question. 
+is_select = False 
 
 table_count=0
 is_table=False
