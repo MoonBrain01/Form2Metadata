@@ -7,3 +7,4 @@ Activate.cmd
 *.bat
 metadata2form - Shortcut.lnk
 metadata2form.spec
+*.lnk

@@ -32,15 +32,23 @@ df_survey = pd.DataFrame(columns=['type', 'name', 'label', 'bind::oc:itemgroup',
 df_settings = pd.DataFrame(columns=['form_title', 'form_id', 'version', 'style', 'namespaces'])
 form_title = df_metadata[df_metadata['Type'].isin(
     ['Form:', 'Form'])]['Description'].to_string(index=False)
+#df_settings = df_settings.append({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
+#    'namespaces':'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'}, ignore_index=True)
+
 df_settings = df_settings.append({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
     'namespaces':'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'}, ignore_index=True)
+
 
 valid_types = ('note', 'integer', 'decimal',
                'category', 'text', 'date', 'group', 'table')
 ques_count = 0
+
 group_count = 0
 group_code_list = []
 is_select = False
+
+table_count=0
+is_table=False
 
 for row in df_metadata.itertuples():
     ques_type = str(row.Type).strip().lower().strip(':')
@@ -68,6 +76,8 @@ for row in df_metadata.itertuples():
         group_code_list.append([group_code, ques_label])
         if re.search("^table\s*start$", ques_type):
             is_table=True
+            table_count += 1
+            table_list_code = f"table_{table_count:03d}"
             group_appearance = 'table-list'
         else:
             group_appearance = 'field-list'
@@ -89,9 +99,13 @@ for row in df_metadata.itertuples():
     ques_code = f"ques_{ques_count:04d}"
 
     if ques_type == 'category':
+        if is_table:
+            list_code = f"select_one {table_list_code}"
+        else:
+            list_code = f"select_one {ques_code}"
 
         df_survey = df_survey.append(
-            {'type':f"select_one {ques_code}", 'name':ques_code, 'label':ques_label, 'bind::oc:itemgroup':'main', 'required':'yes', 'appearance':''}, ignore_index=True)
+            {'type':list_code, 'name':ques_code, 'label':ques_label, 'bind::oc:itemgroup':'main', 'required':'yes', 'appearance':''}, ignore_index=True)
 
         is_select = True
         continue
@@ -113,7 +127,6 @@ def df_to_excel(wb, ws_title, df):
     # Read each row in the dataframe and add it to the worksheet
     for r in dataframe_to_rows(df, index=False, header=True):
         ws.append(r)
-
 
 # Create a workbook to hold form definition
 wb = op.Workbook()
