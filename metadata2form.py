@@ -58,8 +58,12 @@ for row in df_metadata.itertuples():
     # assume the following row are list options as long as the question type is a number
     if is_select:
         if ques_type.isnumeric():
+            if is_table:
+                list_name = table_list_code
+            else:
+                list_name = ques_code
             df_choices = df_choices.append(
-                {'list_name':ques_code, 'label':ques_label, 'name':ques_type}, ignore_index=True)
+                {'list_name':list_name, 'label':ques_label, 'name':ques_type}, ignore_index=True)
             continue
         else:
             # If it is not a number, assume it is the end of the list options for the select question
@@ -100,12 +104,12 @@ for row in df_metadata.itertuples():
 
     if ques_type == 'category':
         if is_table:
-            list_code = f"select_one {table_list_code}"
+            list_type = f"select_one {table_list_code}"
         else:
-            list_code = f"select_one {ques_code}"
+            list_type = f"select_one {ques_code}"
 
         df_survey = df_survey.append(
-            {'type':list_code, 'name':ques_code, 'label':ques_label, 'bind::oc:itemgroup':'main', 'required':'yes', 'appearance':''}, ignore_index=True)
+            {'type':list_type, 'name':ques_code, 'label':ques_label, 'bind::oc:itemgroup':'main', 'required':'yes', 'appearance':''}, ignore_index=True)
 
         is_select = True
         continue
