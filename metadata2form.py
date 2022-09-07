@@ -35,7 +35,7 @@ form_title = df_metadata[df_metadata['Type'].isin(
 #df_settings = df_settings.append({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
 #    'namespaces':'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'}, ignore_index=True)
 
-df_settings = df_settings.concat({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
+df_settings = df_settings.append({'form_title':form_title, 'form_id':'', 'version':'0', 'style':'theme-grid',
     'namespaces':'oc="http://openclinica.org/xforms" , OpenClinica="http://openclinica.com/odm"'}, ignore_index=True)
 
 
