@@ -44,7 +44,7 @@ for ws in df_excel.keys():
 
     # Check the worksheet contains the columns expected in a metadata worksheet.
     # If any column is missing, skip to the next worksheet
-    if not set(md_columns).issubset(set(df_metadata.columns)):
+    if not set(c.upper() for c in md_columns).issubset(set(d.upper() for d in df_metadata.columns)):
         continue
 
 #    if len(list(md_col in df_metadata.columns for md_col in md_columns)) != len(md_columns):
