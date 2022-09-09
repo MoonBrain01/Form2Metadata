@@ -109,12 +109,14 @@ for ws in df_excel.keys():
                 is_table = True
                 table_count += 1
                 table_list_code = f"table_{table_count:03d}"
-                group_code = table_list_code
+                group_code = table_list_code if str(row.Code).strip() == '' or str(
+                    row.Code).strip() == None else str(row.Code).strip()
                 group_appearance = 'table-list'
             else:
                 group_appearance = 'field-list'
                 group_count += 1
-                group_code = f"group_{group_count:03d}"
+                group_code = f"group_{group_count:03d}" if str(row.Code).strip() == '' or str(
+                    row.Code).strip() == None else str(row.Code).strip()
 
             group_code_list.append([group_code, ques_label])
 
@@ -134,7 +136,8 @@ for ws in df_excel.keys():
             continue
 
         ques_count += 1
-        ques_code = f"ques_{ques_count:04d}"
+        ques_code = f"ques_{ques_count:04d}" if str(row.Code).strip() == '' or str(
+            row.Code).strip() == None else str(row.Code).strip()
 
         if ques_type == 'category':
             if is_table:
