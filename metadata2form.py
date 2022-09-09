@@ -187,7 +187,6 @@ for ws in df_excel.keys():
 
     # Save the Excel object as a file
     file_path = os.path.dirname(full_path)
-    #file_name = os.path.basename(full_path).split('.')[0]
     file_count += 1
     file_name = f"OC-{re.sub(r'[^a-zA-Z0-9]','',ws)}-{file_count:03d}"
     dest = f"{file_path}\{file_name}.xlsx"
