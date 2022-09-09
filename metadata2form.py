@@ -44,8 +44,11 @@ for ws in df_excel.keys():
 
     # Check the worksheet contains the columns expected in a metadata worksheet.
     # If any column is missing, skip to the next worksheet
-    if len(list(md_col in df_metadata.columns for md_col in md_columns)) != len(md_columns):
+    if not set(md_columns).issubset(set(df_metadata.columns)):
         continue
+
+#    if len(list(md_col in df_metadata.columns for md_col in md_columns)) != len(md_columns):
+ #       continue
 
     # Initialise dataframes
     df_choices = pd.DataFrame(columns=['list_name', 'label', 'name'])
