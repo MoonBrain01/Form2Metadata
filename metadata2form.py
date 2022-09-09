@@ -2,6 +2,8 @@ import pandas as pd
 import openpyxl as op
 from openpyxl.utils.dataframe import dataframe_to_rows
 import re
+import time
+import unicodedata as ud
 
 import os
 import sys
@@ -33,13 +35,16 @@ df_excel = pd.read_excel(
 # Cycle through each worksheet in the Excel file
 for ws in df_excel.keys():
 
+    # Skip blank/empty worksheet
+    if df_excel[ws].empty:
+        continue
+
     # Retrieve a worksheet
     df_metadata = df_excel[ws]
 
     # Check the worksheet contains the columns expected in a metadata worksheet.
     # If any column is missing, skip to the next worksheet
-    x = list(md_col in df_metadata.columns for md_col in md_columns)
-    if len(x) != len(md_columns):
+    if len(list(md_col in df_metadata.columns for md_col in md_columns)) != len(md_columns):
         continue
 
     # Initialise dataframes
@@ -50,6 +55,7 @@ for ws in df_excel.keys():
     # Populate Settings worksheet
     df_settings = pd.DataFrame(
         columns=['form_title', 'form_id', 'version', 'style', 'namespaces'])
+
     form_title = df_metadata[df_metadata['Type'].isin(
         ['Form:', 'Form'])]['Description'].to_string(index=False)
 
@@ -172,7 +178,7 @@ for ws in df_excel.keys():
     # Save the dataframe as an Excel file
     file_path = os.path.dirname(full_path)
     file_name = os.path.basename(full_path).split('.')[0]
-    dest = f"{file_path}\OC-{ws}-{file_name}.xlsx"
+    dest = f"{file_path}\OC-{re.sub(r'[^a-zA-Z0-9]','',ws)}-{int(time.time())}.xlsx"
     wb.save(dest)
 
     # Delete the dataframes
