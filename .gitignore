@@ -3,6 +3,7 @@
 Activate.cmd
 \build
 \dist
+\IGNORE
 *.xls*
 *.bat
 metadata2form - Shortcut.lnk
