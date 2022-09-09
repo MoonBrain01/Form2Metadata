@@ -1,9 +1,9 @@
+import string
 import pandas as pd
 import openpyxl as op
 from openpyxl.utils.dataframe import dataframe_to_rows
 import re
-import time
-import unicodedata as ud
+import shortuuid
 
 import os
 import sys
@@ -28,6 +28,11 @@ md_columns = ('Code', 'Type', 'Description', 'Length', 'Format')
 valid_types = ('note', 'integer', 'decimal', 'category',
                'text', 'date', 'group', 'table')
 
+# Used to make each filename unique
+file_count = 0
+
+print('*** STARTED ***')
+
 # Read in the metadata file
 df_excel = pd.read_excel(
     full_path, keep_default_na=False, dtype='str', sheet_name=None)
@@ -47,8 +52,7 @@ for ws in df_excel.keys():
     if not set(c.upper() for c in md_columns).issubset(set(d.upper() for d in df_metadata.columns)):
         continue
 
-#    if len(list(md_col in df_metadata.columns for md_col in md_columns)) != len(md_columns):
- #       continue
+    print(f"Worksheet: {ws}")
 
     # Initialise dataframes
     df_choices = pd.DataFrame(columns=['list_name', 'label', 'name'])
@@ -181,11 +185,15 @@ for ws in df_excel.keys():
     df_to_excel(wb, 'survey', df_survey)
     del wb['Sheet']  # Delete blank worksheet
 
-    # Save the dataframe as an Excel file
+    # Save the Excel object as a file
     file_path = os.path.dirname(full_path)
-    file_name = os.path.basename(full_path).split('.')[0]
-    dest = f"{file_path}\OC-{re.sub(r'[^a-zA-Z0-9]','',ws)}-{int(time.time())}.xlsx"
+    #file_name = os.path.basename(full_path).split('.')[0]
+    file_count += 1
+    file_name = f"OC-{re.sub(r'[^a-zA-Z0-9]','',ws)}-{file_count:03d}"
+    dest = f"{file_path}\{file_name}.xlsx"
     wb.save(dest)
 
     # Delete the dataframes
     del df_metadata, df_settings, df_choices, df_survey
+
+print('*** Done! ***')
