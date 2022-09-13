@@ -1,3 +1,4 @@
+from email.policy import default
 import pandas as pd
 import openpyxl as op
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -22,9 +23,12 @@ if not os.path.exists(full_path):
     sys.exit(f"'File not found - {full_path}")
 
 # Read in each of the worksheets in the Form Definition spreadsheet
-df_settings = pd.read_excel(full_path, 'settings', keep_default_na=False, dtype='str')
-df_choices = pd.read_excel(full_path, 'choices', keep_default_na=False, dtype='str')
-df_survey = pd.read_excel(full_path, 'survey', keep_default_na=False, dtype='str')
+df_settings = pd.read_excel(full_path, 'settings',
+                            keep_default_na=False, dtype='str')
+df_choices = pd.read_excel(
+    full_path, 'choices', keep_default_na=False, dtype='str')
+df_survey = pd.read_excel(
+    full_path, 'survey', keep_default_na=False, dtype='str')
 
 header_row = ('Code', 'Type', 'Description', 'Length', 'Format')
 # Create empty datafram with column headings
@@ -44,7 +48,16 @@ df_metadata = df_metadata.append(metadata_row, ignore_index=True)
 # Go through each row of the Survey worksheet and insert an appropriate row in the Metadata
 for row in df_survey.itertuples():
 
+    print(row.name, row.label)
+
     quest_type = str(row.type)
+    quest_format = []
+    if quest_type.startswith('select_multiple'):
+        quest_format.append(f"Multiple Select")
+    if 'default' in df_survey.columns and row.default.strip() != '':
+        quest_format.append(f"Default: {row.default.strip()}")
+    if 'readonly' in df_survey.columns and row.readonly.strip() != '':
+        quest_format.append(f"Read Only")
 
     # If a Select question change to Category
     if quest_type.startswith('select_'):
@@ -56,13 +69,13 @@ for row in df_survey.itertuples():
         'Type': quest_type.capitalize(),
         'Description': row.label,
         'Length': '',
-        'Format': ''
+        'Format': ', '.join(quest_format)
     }
     # Append the new row
     df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Repeating?
-    if quest_type.endswith('group') or quest_type.endswith('repeat'):
+    if quest_type.startswith('begin') and (quest_type.endswith('group') or quest_type.endswith('repeat')):
         repeat_group = 'Yes' if quest_type.endswith('repeat') else 'No'
         # Create the new row
         new_row = {
@@ -80,7 +93,7 @@ for row in df_survey.itertuples():
         listname = str(row.type).split()[1]
         list_choices = df_choices[df_choices['list_name'] == listname]
         for choice in list_choices.itertuples():
-            
+
             # Create the new row
             new_row = {
                 'Code': '',
@@ -93,7 +106,7 @@ for row in df_survey.itertuples():
             df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Hint
-    if row.hint != '':
+    if 'hint' in df_survey.columns and row.hint != '':
         new_row = {
             'Code': '',
             'Type': 'Note:',
@@ -104,7 +117,7 @@ for row in df_survey.itertuples():
         df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Required
-    if row.required != '' and row.required != 'yes':
+    if 'required' in df_survey.columns and row.required != '' and row.required != 'yes':
         new_row = {
             'Code': '',
             'Type': 'REQUIRED-IF:',
@@ -115,7 +128,7 @@ for row in df_survey.itertuples():
         df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Relevant
-    if row.relevant != '':
+    if 'relevant' in df_survey.columns and row.relevant != '':
         new_row = {
             'Code': '',
             'Type': 'COLLECT IF',
@@ -126,7 +139,7 @@ for row in df_survey.itertuples():
         df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Constraint
-    if row.constraint != '':
+    if 'constraint' in df_survey.columns and row.constraint != '':
         new_row = {
             'Code': '',
             'Type': 'WARN IF:',
@@ -137,7 +150,7 @@ for row in df_survey.itertuples():
         df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Calculation
-    if row.calculation != '':
+    if 'calculation' in df_survey.columns and row.calculation != '':
         new_row = {
             'Code': '',
             'Type': 'CALCULATE:',
@@ -153,7 +166,7 @@ wb = op.Workbook()
 ws = wb.active
 
 # Worksheet title
-ws.title = re.sub(r'\W+', ' ',form_title)
+ws.title = re.sub(r'\W+', ' ', form_title)
 
 # Read each row in the dataframe and add it to the worksheet
 for r in dataframe_to_rows(df_metadata, index=False, header=True):
@@ -177,7 +190,7 @@ for r in ws:
             c.fill = PatternFill('solid', fgColor='FFD800')
         continue
 
-    if quest_type == 'Note:' or quest_type == 'Note':
+    if quest_type.startswith('Note'):
         for c in r:
             c.font = Font(color='FF0000')
         continue
