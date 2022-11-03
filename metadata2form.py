@@ -82,6 +82,7 @@ for ws in df_excel.keys():
 
     table_count = 0
     is_table = False
+    is_group = False
 
     for row in df_metadata.itertuples():
         ques_type = str(row.Type).strip().lower().strip(':')
@@ -112,6 +113,7 @@ for ws in df_excel.keys():
 
         # Group/Table tags
         if re.search("^group\s*start$", ques_type) or re.search("^table\s*start$", ques_type):
+
             if re.search("^table\s*start$", ques_type):
                 is_table = True
                 table_count += 1
@@ -120,6 +122,7 @@ for ws in df_excel.keys():
                     row.Code).strip() == None else str(row.Code).strip()
                 group_appearance = 'table-list'
             else:
+                is_group = True
                 group_appearance = 'field-list'
                 group_count += 1
                 group_code = f"group_{group_count:03d}" if str(row.Code).strip() == '' or str(
@@ -134,8 +137,11 @@ for ws in df_excel.keys():
         if re.search("^group\s*end$", ques_type) or re.search("^table\s*end$", ques_type):
             group_code, group_label = group_code_list.pop()
 
+            if re.search("^group\s*end$", ques_type):
+                is_group = False
+
             # If the end of the table, reset all the flags
-            if re.search("^table\s*start$", ques_type):
+            if re.search("^table\s*end$", ques_type):
                 is_table = False
 
             df_survey = df_survey.append(
