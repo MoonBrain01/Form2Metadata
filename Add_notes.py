@@ -23,6 +23,11 @@ new_survey = survey.copy()
 #Blank row used to create the Notes row to be inserted
 blank_row = pd.Series('',new_survey.columns)
 
+#Insert form_mode calculation to control the display of notes during testing.
+new_row = blank_row
+new_row['type','name','default']=['calculate', 'form_mode', 'test', ]
+new_survey.loc[0.5]=new_row
+
 for qname  in cals:
     #Get then name of the calculate question
     question_name = qname.strip()
@@ -33,7 +38,7 @@ for qname  in cals:
     new_idx = idx+0.5 #Places the Note between the Calculate question and the next question
     new_name = f"x_{question_name}" # give the Note question a prefix of x_ so they are easier to identify & delete.
     new_label= "<span style=\"color:green;\">**["+question_name+"]** = ${"+question_name+"}</span>"
-    relevant = "${"+question_name+"}!='NaN'" # Only display the note if the Calculate question has a value (avoids explaining what NaN means!)
+    relevant = "${form_mode}='test'" # Only display the note if the form_mode='test'
     
     new_row = blank_row
     new_row['type','name','label','relevant']=['note', new_name, new_label, relevant]
