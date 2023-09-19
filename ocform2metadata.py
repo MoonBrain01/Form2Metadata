@@ -102,7 +102,7 @@ for row in df_survey.itertuples():
                 'Length': '',
                 'Format': ''
             }
-            # Append the new row
+            # Append the new row 
             df_metadata = df_metadata.append(new_row, ignore_index=True)
 
     # Hint
